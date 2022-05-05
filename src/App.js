@@ -1,23 +1,72 @@
 import './App.css';
+// Bring in the required hooks and possible wallet states
+import { useWallet, WalletStatus } from "@terra-money/wallet-provider";
+import WalletAddress from './components/WalletAddress';
+import Menu from './components/Menu';
+
 
 function App() {
+  // Current wallet status, connect & disconnect functions, available connections
+  const { status, connect, disconnect, availableConnectTypes } = useWallet();
+
+  // Connect to wallet extension 
+  const renderConnectButton = () => {
+    if (status === WalletStatus.WALLET_NOT_CONNECTED) {
+      return (
+        <div className="connect-wallet-div">
+          <button
+            type='button'
+            key={`connect-EXTENTION`}
+            onClick={() => connect("EXTENSION")}
+            className="cta-button connect-wallet-button"
+          >
+            Connect Wallet
+          </button>
+        </div>
+      );
+    }
+  else if (status === WalletStatus.WALLET_CONNECTED) {
+    return (
+      <button
+        type="button"
+        onClick={() => disconnect()}
+        className="cta-button connect-wallet-button"
+      >
+        Disconnect
+      </button>
+    );
+  }
+};
+  // Let's take a look at the starting states
+  console.log('Wallet status is ', status);
+  console.log("Available connection types: ", availableConnectTypes);
 
   return (
     <main className="App">
       <header>
-        <div className="header-titles">
-          <h1>⚔ Goblin War ⚔</h1>
-          <p>Only you can save us from Goblin town</p>
-        </div>
-
+          <div className="header-titles">
+            <h1>⚔ Goblin War ⚔</h1>
+            <p>Only you can save us from Goblin town</p>
+          </div>
+        <WalletAddress />
       </header>
 
-      <div>
-        <img
-          src="https://media.giphy.com/media/B19AYwNXoXtcs/giphy.gif"
-          alt="Goblin gif"
-        />
-      </div>
+
+      {status === WalletStatus.WALLET_NOT_CONNECTED && (
+        <div>
+          <img
+            src="https://media.giphy.com/media/B19AYwNXoXtcs/giphy.gif"
+            alt="Goblin gif"
+          />
+        </div>
+      )}
+
+      {status === WalletStatus.WALLET_CONNECTED && (
+        <div className='game-menu-container'>
+          <Menu />
+        </div>
+      )}
+      {renderConnectButton()}
     </main>
   );
 }
